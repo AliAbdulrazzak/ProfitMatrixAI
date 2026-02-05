@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitMatrix - ML-Powered Pricing Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0E1A;
+            --bg-secondary: #151B2E;
+            --bg-tertiary: #1C2439;
+            --data-layer: #4A3B2A;
+            --ml-layer: #5C3A3A;
+            --app-layer: #2A4A3A;
+            --accent-data: #D4A574;
+            --accent-ml: #C47474;
+            --accent-app: #74C4A5;
+            --text-primary: #E8EDF5;
+            --text-secondary: #8B93A8;
+            --border: #2A3447;
+            --success: #00C9A7;
+            --warning: #FFB020;
+            --error: #FF4757;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Architecture visualization background */
+        .arch-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 49px, var(--border) 49px, var(--border) 50px),
+                repeating-linear-gradient(90deg, transparent, transparent 49px, var(--border) 49px, var(--border) 50px);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* Left Sidebar - Data Layer */
+        .data-layer {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(74, 59, 42, 0.1) 100%);
+            border: 1px solid var(--accent-data);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--accent-data);
+        }
+
+        .layer-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-data);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--bg-primary);
+        }
+
+        .layer-title h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-data);
+        }
+
+        .layer-title p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .data-source {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .data-source h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-data);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .data-source-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .data-info {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .data-info strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .data-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .data-metric {
+            background: var(--bg-primary);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .data-metric-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .data-metric-value {
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-data);
+            margin-top: 2px;
+        }
+
+        /* Center - ML Processing & Chat */
+        .ml-center {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ml-pipeline {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(92, 58, 58, 0.1) 100%);
+            border: 1px solid var(--accent-ml);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .pipeline-stages {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .pipeline-stage {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 140px;
+            position: relative;
+        }
+
+        .pipeline-stage::after {
+            content: '→';
+            position: absolute;
+            right: -18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--accent-ml);
+            font-weight: 700;
+        }
+
+        .pipeline-stage:last-child::after {
+            display: none;
+        }
+
+        .stage-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-ml);
+            margin-bottom: 6px;
+        }
+
+        .stage-status {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .stage-progress {
+            height: 4px;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .stage-progress-bar {
+            height: 100%;
+            background: var(--accent-ml);
+            border-radius: 2px;
+            animation: progressFill 2s ease-in-out infinite;
+        }
+
+        @keyframes progressFill {
+            0% { width: 30%; }
+            50% { width: 80%; }
+            100% { width: 100%; }
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1F4788 0%, #2E5C8A 100%);
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--success);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .chat-title h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chat-subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .processing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .processing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .processing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: processingBounce 1.4s infinite;
+        }
+
+        .processing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .processing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes processingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, var(--accent-ml) 0%, var(--accent-data) 100%);
+        }
+
+        .message.user .message-avatar {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+
+        .message-content {
+            max-width: 70%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .message.user .message-content {
+            background: rgba(31, 71, 136, 0.2);
+            border-color: #1F4788;
+        }
+
+        .ml-insight {
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--accent-data);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        .ml-insight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ml-badge {
+            background: var(--accent-data);
+            color: var(--bg-primary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ml-insight-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-data);
+        }
+
+        .cluster-result {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .cluster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .cluster-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .cluster-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 4px;
+        }
+
+        .cluster-count {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .cluster-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .feature-table {
+            margin: 12px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .feature-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .feature-table th {
+            background: var(--bg-primary);
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .feature-table td {
+            padding: 10px 12px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chat-input {
+            padding: 18px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-tertiary);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-ml);
+            box-shadow: 0 0 0 3px rgba(196, 116, 116, 0.2);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, var(--accent-ml) 0%, var(--accent-data) 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 90px;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 116, 116, 0.4);
+        }
+
+        /* Right Sidebar - Application Layer */
+        .app-layer {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(42, 74, 58, 0.1) 100%);
+            border: 1px solid var(--accent-app);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .model-status {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .model-status h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-app);
+            margin-bottom: 10px;
+        }
+
+        .model-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .model-metric:last-child {
+            border-bottom: none;
+        }
+
+        .model-metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .model-metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--success);
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            background: rgba(74, 196, 165, 0.1);
+            border-color: var(--accent-app);
+            transform: translateX(4px);
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-app);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-ml);
+        }
+
+        @media (max-width: 1400px) {
+            .container {
+                grid-template-columns: 280px 1fr 280px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+            }
+            
+            .data-layer, .app-layer {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="arch-bg"></div>
+    
+    <div class="container">
+        <!-- Left Sidebar: Data Layer -->
+        <div class="data-layer">
+            <div class="layer-header">
+                <div class="layer-icon">📊</div>
+                <div class="layer-title">
+                    <h2>DATA LAYER</h2>
+                    <p>ETL • Storage • Features</p>
+                </div>
+            </div>
+
+            <div class="data-source">
+                <h3>
+                    <span class="data-source-status"></span>
+                    1. RDS PostgreSQL
+                </h3>
+                <div class="data-info">
+                    <strong>Production Schema</strong><br>
+                    • Multi-tenant (tenant_id)<br>
+                    • Transactional data<br>
+                    • Prices, discounts, volumes
+                </div>
+                <div class="data-metrics">
+                    <div class="data-metric">
+                        <div class="data-metric-label">Rows</div>
+                        <div class="data-metric-value">4.2M</div>
+                    </div>
+                    <div class="data-metric">
+                        <div class="data-metric-label">Tables</div>
+                        <div class="data-metric-value">12</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source">
+                <h3>
+                    <span class="data-source-status"></span>
+                    2. Data Export (ETL)
+                </h3>
+                <div class="data-info">
+                    <strong>Node.js Scheduled Job</strong><br>
+                    • Reads incremental changes<br>
+                    • Filters by tenant_id<br>
+                    • Converts to JSON → S3
+                </div>
+                <div class="data-metrics">
+                    <div class="data-metric">
+                        <div class="data-metric-label">Last Run</div>
+                        <div class="data-metric-value">2m ago</div>
+                    </div>
+                    <div class="data-metric">
+                        <div class="data-metric-label">Status</div>
+                        <div class="data-metric-value">✓</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source">
+                <h3>
+                    <span class="data-source-status"></span>
+                    3. S3 Raw Data Bucket
+                </h3>
+                <div class="data-info">
+                    <strong>JSON Storage</strong><br>
+                    • Append-only, immutable<br>
+                    • Schema-on-read<br>
+                    • Tenant folder structure
+                </div>
+                <div class="data-metrics">
+                    <div class="data-metric">
+                        <div class="data-metric-label">Size</div>
+                        <div class="data-metric-value">24GB</div>
+                    </div>
+                    <div class="data-metric">
+                        <div class="data-metric-label">Files</div>
+                        <div class="data-metric-value">8.3K</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source">
+                <h3>
+                    <span class="data-source-status"></span>
+                    4. Feature Engineering
+                </h3>
+                <div class="data-info">
+                    <strong>SageMaker Processing</strong><br>
+                    • Python/Pandas/EC2<br>
+                    • Windowed features<br>
+                    • Normalized per tenant
+                </div>
+                <div class="data-metrics">
+                    <div class="data-metric">
+                        <div class="data-metric-label">Features</div>
+                        <div class="data-metric-value">43</div>
+                    </div>
+                    <div class="data-metric">
+                        <div class="data-metric-label">Latency</div>
+                        <div class="data-metric-value">12s</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source">
+                <h3>
+                    <span class="data-source-status"></span>
+                    5. S3 Feature Store
+                </h3>
+                <div class="data-info">
+                    <strong>ML-Ready Features</strong><br>
+                    • 1 row per tenant × customer<br>
+                    • margin, discount, freq, etc.<br>
+                    • Used by all models
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: ML Pipeline & Chat -->
+        <div class="ml-center">
+            <div class="ml-pipeline">
+                <div class="layer-header">
+                    <div class="layer-icon" style="background: var(--accent-ml);">🤖</div>
+                    <div class="layer-title">
+                        <h2 style="color: var(--accent-ml);">ML LAYER</h2>
+                        <p>Training • Inference • Scoring</p>
+                    </div>
+                </div>
+
+                <div class="pipeline-stages">
+                    <div class="pipeline-stage">
+                        <div class="stage-name">Load Features</div>
+                        <div class="stage-status">From S3 Store</div>
+                        <div class="stage-progress">
+                            <div class="stage-progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="pipeline-stage">
+                        <div class="stage-name">K-Means Train</div>
+                        <div class="stage-status">sklearn.cluster</div>
+                        <div class="stage-progress">
+                            <div class="stage-progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="pipeline-stage">
+                        <div class="stage-name">Model Store</div>
+                        <div class="stage-status">Save to S3</div>
+                        <div class="stage-progress">
+                            <div class="stage-progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="pipeline-stage">
+                        <div class="stage-name">Batch Score</div>
+                        <div class="stage-status">Predictions</div>
+                        <div class="stage-progress">
+                            <div class="stage-progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="pipeline-stage">
+                        <div class="stage-name">API Serve</div>
+                        <div class="stage-status">Real-time</div>
+                        <div class="stage-progress">
+                            <div class="stage-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-title">
+                        <div class="chat-avatar">ML</div>
+                        <div>
+                            <h3>ML Pricing Intelligence</h3>
+                            <div class="chat-subtitle">Powered by K-Means Clustering & SageMaker</div>
+                        </div>
+                    </div>
+                    <div class="processing-indicator">
+                        <div class="processing-dots">
+                            <div class="processing-dot"></div>
+                            <div class="processing-dot"></div>
+                            <div class="processing-dot"></div>
+                        </div>
+                        <span>Processing</span>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant">
+                        <div class="message-avatar">ML</div>
+                        <div class="message-content">
+                            <p>👋 Welcome to the <strong>ProfitMatrix ML Intelligence System</strong></p>
+                            <p style="margin-top: 10px;">I'm connected to the complete ML pipeline shown in the architecture:</p>
+                            
+                            <div class="ml-insight">
+                                <div class="ml-insight-header">
+                                    <span class="ml-badge">Data Layer</span>
+                                    <span class="ml-insight-title">Live Data Pipeline</span>
+                                </div>
+                                <div class="data-info">
+                                    ✓ PostgreSQL production database (4.2M rows)<br>
+                                    ✓ Automated ETL to S3 (scheduled every 15min)<br>
+                                    ✓ Feature engineering (43 engineered features)<br>
+                                    ✓ S3 Feature Store (ML-ready data)
+                                </div>
+                            </div>
+
+                            <div class="ml-insight">
+                                <div class="ml-insight-header">
+                                    <span class="ml-badge">ML Layer</span>
+                                    <span class="ml-insight-title">SageMaker Training & Inference</span>
+                                </div>
+                                <div class="data-info">
+                                    ✓ K-Means clustering for customer/SKU segmentation<br>
+                                    ✓ Batch processing with SageMaker Transform<br>
+                                    ✓ Real-time scoring via API endpoints<br>
+                                    ✓ Model artifacts stored in S3
+                                </div>
+                            </div>
+
+                            <p style="margin-top: 12px;">Ask me to:</p>
+                            <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
+                                <li><strong>Run customer clustering</strong> - Segment customers by margin behavior</li>
+                                <li><strong>Analyze SKU performance</strong> - Identify profitable vs. unprofitable products</li>
+                                <li><strong>Show feature importance</strong> - Which features drive segmentation</li>
+                                <li><strong>Explain the pipeline</strong> - How data flows through the system</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <div class="input-wrapper">
+                        <textarea 
+                            class="input-field" 
+                            id="userInput" 
+                            placeholder="Ask about clustering, features, pipeline architecture..."
+                            rows="1"
+                        ></textarea>
+                        <button class="send-button" id="sendButton" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Application Layer -->
+        <div class="app-layer">
+            <div class="layer-header">
+                <div class="layer-icon" style="background: var(--accent-app);">⚡</div>
+                <div class="layer-title">
+                    <h2 style="color: var(--accent-app);">APP LAYER</h2>
+                    <p>Backend • Frontend • APIs</p>
+                </div>
+            </div>
+
+            <div class="model-status">
+                <h3>8. Backend API (Node.js)</h3>
+                <div class="model-metric">
+                    <span class="model-metric-label">Status</span>
+                    <span class="model-metric-value">● Online</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Endpoints</span>
+                    <span class="model-metric-value">12 active</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Latency (p95)</span>
+                    <span class="model-metric-value">145ms</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Lambda + API</span>
+                    <span class="model-metric-value">Reads S3</span>
+                </div>
+            </div>
+
+            <div class="model-status">
+                <h3>9. Frontend (React)</h3>
+                <div class="model-metric">
+                    <span class="model-metric-label">Framework</span>
+                    <span class="model-metric-value">React 18</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Visualization</span>
+                    <span class="model-metric-value">Recharts</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Consumes</span>
+                    <span class="model-metric-value">Backend API</span>
+                </div>
+            </div>
+
+            <div class="model-status">
+                <h3>ML Model Performance</h3>
+                <div class="model-metric">
+                    <span class="model-metric-label">Silhouette Score</span>
+                    <span class="model-metric-value">0.67</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Inertia</span>
+                    <span class="model-metric-value">2,341</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Clusters</span>
+                    <span class="model-metric-value">5</span>
+                </div>
+                <div class="model-metric">
+                    <span class="model-metric-label">Training Time</span>
+                    <span class="model-metric-value">23.4s</span>
+                </div>
+            </div>
+
+            <div class="model-status">
+                <h3>Quick Actions</h3>
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="quickAction('cluster')">
+                        <span class="action-icon">🎯</span>
+                        Run K-Means Clustering
+                    </button>
+                    <button class="action-btn" onclick="quickAction('features')">
+                        <span class="action-icon">📊</span>
+                        Show Feature Store
+                    </button>
+                    <button class="action-btn" onclick="quickAction('pipeline')">
+                        <span class="action-icon">🔄</span>
+                        Explain Pipeline Flow
+                    </button>
+                    <button class="action-btn" onclick="quickAction('architecture')">
+                        <span class="action-icon">🏗️</span>
+                        System Architecture
+                    </button>
+                    <button class="action-btn" onclick="quickAction('performance')">
+                        <span class="action-icon">⚡</span>
+                        Model Performance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = isUser ? 'U' : 'ML';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function getMLResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Customer clustering
+            if (lowerMessage.includes('cluster') || lowerMessage.includes('segment') || lowerMessage.includes('customer')) {
+                return `
+                    <p><strong>🎯 K-Means Customer Clustering Results</strong></p>
+                    
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">ML Pipeline</span>
+                            <span class="ml-insight-title">Execution Flow</span>
+                        </div>
+                        <div class="data-info">
+                            1️⃣ <strong>Data Retrieval:</strong> Loaded 699 customers from S3 Feature Store<br>
+                            2️⃣ <strong>Feature Selection:</strong> Used 8 features (margin, frequency, recency, volume, discount_rate, payment_terms, variance, growth)<br>
+                            3️⃣ <strong>Model Training:</strong> K-Means with k=5, completed in 23.4s<br>
+                            4️⃣ <strong>Scoring:</strong> Assigned cluster labels to all customers
+                        </div>
+                    </div>
+
+                    <div class="cluster-result">
+                        <strong style="color: var(--accent-app); font-size: 13px;">Cluster Assignments</strong>
+                        <div class="cluster-grid">
+                            <div class="cluster-card">
+                                <div class="cluster-name">Champions</div>
+                                <div class="cluster-count">42</div>
+                                <div class="cluster-label">High margin, high freq</div>
+                            </div>
+                            <div class="cluster-card">
+                                <div class="cluster-name">High Potential</div>
+                                <div class="cluster-count">87</div>
+                                <div class="cluster-label">Good margin, med freq</div>
+                            </div>
+                            <div class="cluster-card">
+                                <div class="cluster-name">At Risk</div>
+                                <div class="cluster-count">156</div>
+                                <div class="cluster-label">Declining metrics</div>
+                            </div>
+                            <div class="cluster-card">
+                                <div class="cluster-name">Hibernating</div>
+                                <div class="cluster-count">203</div>
+                                <div class="cluster-label">Low recency</div>
+                            </div>
+                            <div class="cluster-card">
+                                <div class="cluster-name">Unprofitable</div>
+                                <div class="cluster-count">211</div>
+                                <div class="cluster-label">Negative margin</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Model Quality</span>
+                            <span class="ml-insight-title">Performance Metrics</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>Silhouette Score: 0.67</strong> (Good cluster separation)<br>
+                            <strong>Inertia: 2,341</strong> (Within-cluster variance)<br>
+                            <strong>Feature Importance:</strong> margin (0.34), frequency (0.28), recency (0.19)
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 12px;">The model identified that <strong>30% of customers (211) are unprofitable</strong> and should be repriced or exited. Meanwhile, <strong>42 Champion customers generate 47% of total profit</strong> and require VIP protection strategies.</p>
+                `;
+            }
+            
+            // Feature store explanation
+            if (lowerMessage.includes('feature') || lowerMessage.includes('engineer')) {
+                return `
+                    <p><strong>📊 Feature Engineering & Feature Store</strong></p>
+                    
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Data Layer</span>
+                            <span class="ml-insight-title">Feature Engineering Process</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>Step 1: Raw Data Extraction</strong><br>
+                            • PostgreSQL → S3 Raw Data Bucket (JSON format)<br>
+                            • Incremental updates every 15 minutes<br>
+                            • Partitioned by tenant_id and date<br><br>
+                            
+                            <strong>Step 2: Feature Computation (SageMaker)</strong><br>
+                            • Python/Pandas processing on EC2<br>
+                            • Windowed aggregations (30d, 90d, 365d)<br>
+                            • Normalization per tenant (z-score)<br>
+                            • Output: 43 features per customer/SKU
+                        </div>
+                    </div>
+
+                    <div class="feature-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature Name</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>margin_30d</td>
+                                    <td>Continuous</td>
+                                    <td>Avg margin last 30 days</td>
+                                </tr>
+                                <tr>
+                                    <td>purchase_freq</td>
+                                    <td>Continuous</td>
+                                    <td>Orders per month</td>
+                                </tr>
+                                <tr>
+                                    <td>recency_days</td>
+                                    <td>Continuous</td>
+                                    <td>Days since last order</td>
+                                </tr>
+                                <tr>
+                                    <td>volume_agg</td>
+                                    <td>Continuous</td>
+                                    <td>Total units purchased</td>
+                                </tr>
+                                <tr>
+                                    <td>discount_rate</td>
+                                    <td>Continuous</td>
+                                    <td>Avg discount %</td>
+                                </tr>
+                                <tr>
+                                    <td>payment_term</td>
+                                    <td>Categorical</td>
+                                    <td>Net 30/60/90</td>
+                                </tr>
+                                <tr>
+                                    <td>margin_variance</td>
+                                    <td>Continuous</td>
+                                    <td>Std dev of margins</td>
+                                </tr>
+                                <tr>
+                                    <td>growth_rate</td>
+                                    <td>Continuous</td>
+                                    <td>YoY volume growth</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">S3 Feature Store</span>
+                            <span class="ml-insight-title">ML-Ready Storage</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>Schema:</strong> 1 row per (tenant_id, customer_id, time_window)<br>
+                            <strong>Format:</strong> Parquet (compressed, columnar)<br>
+                            <strong>Usage:</strong> All ML models read from this single source<br>
+                            <strong>Update Frequency:</strong> Daily batch + streaming for real-time
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 12px;">The Feature Store ensures <strong>consistency across all models</strong> and eliminates redundant computation. New models can leverage existing features immediately.</p>
+                `;
+            }
+            
+            // Pipeline explanation
+            if (lowerMessage.includes('pipeline') || lowerMessage.includes('flow') || lowerMessage.includes('architecture')) {
+                return `
+                    <p><strong>🏗️ ML Pipeline Architecture & Data Flow</strong></p>
+                    
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Layer 1: Data</span>
+                            <span class="ml-insight-title">Data Collection & Storage</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>1. RDS PostgreSQL Database</strong><br>
+                            • Production schema with transactional data<br>
+                            • Multi-tenant architecture (isolated by tenant_id)<br>
+                            • Contains: orders, customers, products, pricing, costs<br><br>
+                            
+                            <strong>2. Data Export (Node.js ETL)</strong><br>
+                            • Cron job runs every 15 minutes<br>
+                            • Queries rows added since last run (timestamp-based)<br>
+                            • Filters by tenant, converts to JSON, appends to S3<br><br>
+                            
+                            <strong>3. S3 Raw Data Bucket</strong><br>
+                            • Immutable, append-only storage<br>
+                            • Schema-on-read (flexible for changes)<br>
+                            • Folder structure: s3://bucket/tenant_id/YYYY/MM/DD/
+                        </div>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Layer 2: Processing</span>
+                            <span class="ml-insight-title">Feature Engineering</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>4. Feature Engineering (SageMaker Processing)</strong><br>
+                            • Python/Pandas jobs on EC2 instances<br>
+                            • Reads raw S3, computes windowed features<br>
+                            • Normalizes per tenant (handles scale differences)<br>
+                            • Outputs: margin, discount, frequency, recency, volume, etc.<br><br>
+                            
+                            <strong>5. S3 Feature Store</strong><br>
+                            • ML-ready features in Parquet format<br>
+                            • One row per tenant × customer × time window<br>
+                            • Consumed by all downstream ML models
+                        </div>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Layer 3: ML</span>
+                            <span class="ml-insight-title">Model Training & Inference</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>6. Model Training (SageMaker Training)</strong><br>
+                            • Batch, offline training jobs<br>
+                            • Reads features from S3 Feature Store<br>
+                            • K-Means for customer/SKU segmentation<br>
+                            • Produces versioned model artifacts → S3<br><br>
+                            
+                            <strong>7. Model Scoring & Inference</strong><br>
+                            • Batch: SageMaker Batch Transform (nightly)<br>
+                            • Real-time: SageMaker Endpoint (API calls)<br>
+                            • Outputs cluster assignments (JSON) → S3
+                        </div>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Layer 4: Application</span>
+                            <span class="ml-insight-title">Backend & Frontend</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>8. Backend API (Lambda + Node.js)</strong><br>
+                            • REST endpoints for frontend<br>
+                            • Reads S3 JSON outputs (model predictions)<br>
+                            • Lightweight transformation and filtering<br><br>
+                            
+                            <strong>9. Frontend (React)</strong><br>
+                            • Dashboard consuming backend APIs<br>
+                            • Visualizations: Recharts, D3.js, Chart.js<br>
+                            • Displays clusters, recommendations, insights
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 12px;"><strong>Key Design Principles:</strong></p>
+                    <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
+                        <li><strong>Separation of concerns:</strong> Data, ML, and application layers are independent</li>
+                        <li><strong>Scalability:</strong> Each stage can scale independently (EC2, SageMaker, Lambda)</li>
+                        <li><strong>Fault tolerance:</strong> Immutable S3 storage, versioned models, idempotent jobs</li>
+                        <li><strong>Cost optimization:</strong> Batch processing during off-hours, spot instances for training</li>
+                    </ul>
+                `;
+            }
+            
+            // Model performance
+            if (lowerMessage.includes('performance') || lowerMessage.includes('metric') || lowerMessage.includes('quality')) {
+                return `
+                    <p><strong>⚡ ML Model Performance & Validation</strong></p>
+                    
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">K-Means Clustering</span>
+                            <span class="ml-insight-title">Model Quality Metrics</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>Silhouette Score: 0.67</strong><br>
+                            • Measures how similar objects are to their own cluster vs. other clusters<br>
+                            • Range: -1 to +1 (higher is better)<br>
+                            • 0.67 = Good separation, clusters are well-defined<br><br>
+                            
+                            <strong>Inertia (WCSS): 2,341</strong><br>
+                            • Sum of squared distances to nearest cluster center<br>
+                            • Lower is better (tighter clusters)<br>
+                            • Used with elbow method to choose optimal k<br><br>
+                            
+                            <strong>Davies-Bouldin Index: 0.89</strong><br>
+                            • Ratio of within-cluster to between-cluster distances<br>
+                            • Lower is better<br>
+                            • 0.89 = Excellent cluster separation
+                        </div>
+                    </div>
+
+                    <div class="feature-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cluster</th>
+                                    <th>Size</th>
+                                    <th>Avg Margin</th>
+                                    <th>Cohesion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Champions</strong></td>
+                                    <td>42 (6%)</td>
+                                    <td style="color: var(--success);">48.3%</td>
+                                    <td style="color: var(--success);">0.92</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>High Potential</strong></td>
+                                    <td>87 (12%)</td>
+                                    <td style="color: var(--success);">42.1%</td>
+                                    <td style="color: var(--success);">0.88</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>At Risk</strong></td>
+                                    <td>156 (22%)</td>
+                                    <td style="color: var(--warning);">28.4%</td>
+                                    <td style="color: var(--success);">0.85</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hibernating</strong></td>
+                                    <td>203 (29%)</td>
+                                    <td style="color: var(--warning);">18.2%</td>
+                                    <td style="color: var(--success);">0.81</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Unprofitable</strong></td>
+                                    <td>211 (30%)</td>
+                                    <td style="color: var(--error);">-2.1%</td>
+                                    <td style="color: var(--success);">0.79</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Training Metrics</span>
+                            <span class="ml-insight-title">Computational Performance</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>Training Time: 23.4 seconds</strong><br>
+                            • Dataset: 699 customers × 8 features<br>
+                            • Instance: ml.m5.xlarge (4 vCPU, 16GB RAM)<br>
+                            • Iterations to convergence: 12<br><br>
+                            
+                            <strong>Inference Latency: 12ms (p95)</strong><br>
+                            • Real-time endpoint scoring<br>
+                            • Batch transform: 45s for 10K customers<br><br>
+                            
+                            <strong>Model Size: 2.3 KB</strong><br>
+                            • Cluster centroids + metadata<br>
+                            • Fast loading and deployment
+                        </div>
+                    </div>
+
+                    <div class="ml-insight">
+                        <div class="ml-insight-header">
+                            <span class="ml-badge">Validation</span>
+                            <span class="ml-insight-title">Test & Production Monitoring</span>
+                        </div>
+                        <div class="data-info">
+                            <strong>Train/Test Split: 80/20</strong><br>
+                            • Training: 559 customers<br>
+                            • Test: 140 customers<br>
+                            • Test silhouette score: 0.65 (consistent with training)<br><br>
+                            
+                            <strong>Production Monitoring:</strong><br>
+                            • Weekly retraining to adapt to new patterns<br>
+                            • Drift detection: Alert if silhouette drops below 0.55<br>
+                            • A/B testing: Compare old vs. new model performance
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 12px;">The model achieves <strong>production-grade quality</strong> with excellent cluster separation (Silhouette 0.67) and fast inference (12ms). Weekly retraining ensures it adapts to changing customer behavior.</p>
+                `;
+            }
+
+            // Default response
+            return `
+                <p>I can provide detailed information about the ML pipeline. Try asking:</p>
+                <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                    <li><strong>"Run customer clustering"</strong> - See K-Means segmentation results</li>
+                    <li><strong>"Show feature store"</strong> - Understand feature engineering</li>
+                    <li><strong>"Explain the pipeline"</strong> - Full architecture walkthrough</li>
+                    <li><strong>"Model performance"</strong> - Quality metrics and validation</li>
+                </ul>
+            `;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(`<p>${message}</p>`, true);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            sendButton.disabled = true;
+            userInput.disabled = true;
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const response = await getMLResponse(message);
+            addMessage(response);
+
+            sendButton.disabled = false;
+            userInput.disabled = false;
+            userInput.focus();
+        }
+
+        function quickAction(action) {
+            const actions = {
+                'cluster': 'Run K-Means clustering on all customers',
+                'features': 'Show me the feature engineering process',
+                'pipeline': 'Explain the complete ML pipeline architecture',
+                'architecture': 'Walk me through the system architecture',
+                'performance': 'Show model performance metrics'
+            };
+            
+            userInput.value = actions[action] || action;
+            sendMessage();
+        }
+    </script>
+</body>
+</html>

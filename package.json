@@ -1,0 +1,52 @@
+{
+  "name": "profitmatrix-ml-agent",
+  "version": "1.0.0",
+  "description": "AI-powered conversational interface for manufacturing pricing intelligence",
+  "main": "src/index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
+    "open": "open http://localhost:8000/src/index.html || xdg-open http://localhost:8000/src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crashing-out/profitmatrix-ml-agent.git"
+  },
+  "keywords": [
+    "machine-learning",
+    "pricing",
+    "ai",
+    "manufacturing",
+    "customer-segmentation",
+    "k-means",
+    "sagemaker",
+    "conversational-ai",
+    "business-intelligence",
+    "profit-optimization"
+  ],
+  "authors": [
+    {
+      "name": "Ali Abdulrazzak"
+    },
+    {
+      "name": "Alex DiMichele"
+    },
+    {
+      "name": "Chris Ross"
+    },
+    {
+      "name": "Sebastian Tran"
+    },
+    {
+      "name": "Logan Yates"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/crashing-out/profitmatrix-ml-agent/issues"
+  },
+  "homepage": "https://github.com/crashing-out/profitmatrix-ml-agent#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

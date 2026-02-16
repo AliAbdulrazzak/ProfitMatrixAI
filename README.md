@@ -284,8 +284,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Architecture inspired by** AWS SageMaker MLOps best practices
 - **Design patterns from** ProfitMatrix B2B SaaS platform
-- **Built by** Crashing Out Team (Ali Abdulrazzak, Alex DiMichele, Chris Ross, Sebastian Tran, Logan Yates)
-- **Created for** CSC 478 - Software Engineering Project
+- **Built by**  Team (Ali Abdulrazzak, Logan Yates)
+- **Created for** CSC 402 - Software Engineering Project
 
 ## 📧 Contact
 
@@ -293,9 +293,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Team:** Crashing Out
 - Ali Abdulrazzak
-- Alex DiMichele
-- Chris Ross
-- Sebastian Tran
 - Logan Yates
 
 ## 🗺️ Roadmap
